@@ -1,12 +1,14 @@
 class EndPoints {
-  static const String baserUrl = "http://192.168.1.3:8000/api/";
-  static const String attendance = "attendance";
+  static const String baserUrl = "BASE";
+  static const String attendance = "attendance/check-in";
+  static const String updatePointStep1 = "students/";
+  static const String updatePointStep2 = "/points";
 }
 
 class ApiKey {
-  static String id = "id";
+  static String id = "student_id";
   static String status = "status";
-  static String attended_at = "attended_at";
+  static String attended_at = "date";
   static String message = "message";
 
   //---------------------------------------

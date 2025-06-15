@@ -9,48 +9,47 @@ import '../../data/enums/app_state_enum.dart';
 import '../../data/enums/loading_state_enum.dart';
 import 'package:http/http.dart' as http;
 
-class HomePageBinging extends Bindings {
+class PointsScreenLogic extends Bindings {
   @override
   void dependencies() {
-    Get.put(HomePageController());
+    Get.put(PointsScreenController());
   }
 }
 
-class HomePageController extends GetxController {
+class PointsScreenController extends GetxController {
   final isConnectedPage = true.obs;
   var loadingState = LoadingState.idle.obs;
   var appState = AppState.run.obs;
   final userRepo = Get.find<ImpUsersRepositories>();
 
+  final selectedPoints = RxnInt(); // عدد النقاط المختار
+  final operationType = 'add'.obs; // 'add' أو 'remove'
+
   openQRCode(BuildContext context) async {
+    if (selectedPoints.value == null) {
+      SnackBarCustom.show(
+        context,
+        'الرجاء اختيار عدد النقاط أولاً',
+        ColorManager.redColor,
+      );
+      return;
+    }
+
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder:
             (_) => QRScannerScreen(
               onDetect: (id) {
-                attedance(id, context);
+                int points = selectedPoints.value!;
+                if (operationType.value == 'remove') {
+                  points = -points; // نستخدم الرقم السالب للحذف
+                }
+                updatePoints(id, points, context);
               },
             ),
       ),
     );
-  }
-
-  attedance(String id, BuildContext context) async {
-    loadingState.value = LoadingState.loading;
-    final response = await userRepo.attedance(id: id);
-
-    if (response.success) {
-      final data = response.data as AttedanceEntitie;
-      SnackBarCustom.show(context, data.message, ColorManager.greenColor);
-    } else {
-      SnackBarCustom.show(
-        context,
-        response.networkFailure!.message,
-        ColorManager.redColor,
-      );
-    }
-    loadingState.value = LoadingState.idle;
   }
 
   updatePoints(String id, int points, BuildContext context) async {
