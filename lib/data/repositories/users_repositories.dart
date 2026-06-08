@@ -11,7 +11,11 @@ import '../entities/attedance_entitie.dart';
 
 abstract class UsersRepositories {
   Future<AppResponse> attedance({required String id});
-  Future<AppResponse> updatePoint({required String id, required int points});
+  Future<AppResponse> updatePoint({
+    required String id,
+    required int points,
+    String? reason,
+  });
 }
 
 class ImpUsersRepositories implements UsersRepositories {
@@ -45,6 +49,7 @@ class ImpUsersRepositories implements UsersRepositories {
   Future<AppResponse> updatePoint({
     required String id,
     required int points,
+    String? reason,
   }) async {
     AppResponse response = AppResponse(success: false);
     try {
@@ -56,7 +61,10 @@ class ImpUsersRepositories implements UsersRepositories {
             EndPoints.updatePointStep2,
         method: Method.post,
         requiredToken: false,
-        params: {'points': points},
+        params: {
+          'points': points,
+          if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
+        },
       );
       debugPrint(response.data.toString());
       final data = jsonDecode(response.data.toString()) as Map<String, dynamic>;

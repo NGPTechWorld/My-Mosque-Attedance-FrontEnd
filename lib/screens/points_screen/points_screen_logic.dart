@@ -24,6 +24,40 @@ class PointsScreenController extends GetxController {
 
   final selectedPoints = RxnInt(); // عدد النقاط المختار
   final operationType = 'add'.obs; // 'add' أو 'remove'
+  final reason = ''.obs; // سبب الإضافة / الحذف
+
+  // عنصر التحكم بحقل السبب لتعبئته عند الاختيار من القائمة
+  final reasonController = TextEditingController();
+
+  // قائمة الأسباب الجاهزة للاختيار منها
+  final reasons = <String>[
+    'حفظ سورة',
+    'مشاركة',
+    'سلوك جيد',
+    'غياب',
+    'تأخير',
+  ].obs;
+
+  // اختيار سبب من القائمة وتعبئة الحقل به
+  void selectReason(String value) {
+    reason.value = value;
+    reasonController.text = value;
+  }
+
+  // إضافة سبب جديد إلى القائمة
+  void addReason(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    if (!reasons.contains(trimmed)) {
+      reasons.add(trimmed);
+    }
+  }
+
+  @override
+  void onClose() {
+    reasonController.dispose();
+    super.onClose();
+  }
 
   openQRCode(BuildContext context) async {
     if (selectedPoints.value == null) {
@@ -54,7 +88,11 @@ class PointsScreenController extends GetxController {
 
   updatePoints(String id, int points, BuildContext context) async {
     loadingState.value = LoadingState.loading;
-    final response = await userRepo.updatePoint(id: id, points: points);
+    final response = await userRepo.updatePoint(
+      id: id,
+      points: points,
+      reason: reason.value,
+    );
 
     if (response.success) {
       final data = response.data;

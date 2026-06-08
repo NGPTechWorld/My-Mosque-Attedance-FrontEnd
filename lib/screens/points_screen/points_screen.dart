@@ -14,6 +14,116 @@ import 'package:my_mosque_attedance/screens/points_screen/points_screen_logic.da
 class PointsScreen extends GetView<PointsScreenController> {
   const PointsScreen({super.key});
 
+  // بوتم شيت لاختيار سبب جاهز أو إضافة سبب جديد للقائمة
+  void _showReasonSheet(BuildContext context) {
+    final newReasonController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: ColorManager.whiteColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 12,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: ColorManager.greyColor300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'اختر سبباً',
+                style: StyleManager.h4_Bold(color: ColorManager.blackColor),
+              ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: Obx(
+                  () => ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: controller.reasons.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (_, index) {
+                      final item = controller.reasons[index];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          item,
+                          style: StyleManager.body01_Regular(),
+                        ),
+                        trailing: Obx(
+                          () =>
+                              controller.reason.value == item
+                                  ? Icon(
+                                    Icons.check_circle,
+                                    color: ColorManager.firstColor,
+                                  )
+                                  : const SizedBox.shrink(),
+                        ),
+                        onTap: () {
+                          controller.selectReason(item);
+                          Navigator.pop(ctx);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const Divider(),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: newReasonController,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        hintStyle: StyleManager.body01_Regular(),
+                        hintText: 'سبب جديد...',
+                      ),
+                      onSubmitted: (value) {
+                        controller.addReason(value);
+                        newReasonController.clear();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorManager.firstColor,
+                      foregroundColor: ColorManager.whiteColor,
+                    ),
+                    onPressed: () {
+                      controller.addReason(newReasonController.text);
+                      newReasonController.clear();
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('إضافة سبب'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -142,6 +252,29 @@ class PointsScreen extends GetView<PointsScreenController> {
                         ),
                         Text('حذف', style: StyleManager.body01_Regular()),
                       ],
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'سبب العملية:',
+                      style: StyleManager.h4_Bold(
+                        color: ColorManager.blackColor,
+                      ),
+                    ),
+                    TextFormField(
+                      controller: controller.reasonController,
+                      decoration: InputDecoration(
+                        hintStyle: StyleManager.body01_Regular(),
+                        hintText: 'مثلاً: حفظ سورة، غياب، سلوك...',
+                        prefixIcon: IconButton(
+                          icon: Icon(
+                            Icons.add_circle,
+                            color: ColorManager.firstColor,
+                          ),
+                          tooltip: 'اختيار سبب',
+                          onPressed: () => _showReasonSheet(context),
+                        ),
+                      ),
+                      onChanged: (value) => controller.reason.value = value,
                     ),
                   ],
                 ),
