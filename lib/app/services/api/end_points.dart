@@ -1,5 +1,5 @@
 class EndPoints {
-  static const String baserUrl = "BASE";
+  static const String baserUrl = "http://mosque.ngptechworld.serv00.net/api/";
   static const String attendance = "attendance/check-in";
   static const String updatePointStep1 = "students/";
   static const String updatePointStep2 = "/points";
